@@ -9,7 +9,7 @@ HOME_DIR="$HOME"
 DATA_DIR="$HOME/DataVault"
 DIRS_FILE="$HOME/.offline_sync_dirs"
 RSYNC_OPTS="-avu"
-[ "$DRY_RUN" = true ] && RSYNC_OPTS+=" -n"
+[ "$DRY_RUN" = false ] && RSYNC_OPTS+=" -n"
 
 # -----------------------------
 # Check if DataVault is mounted
