@@ -8,8 +8,4 @@ This script syncs a user's home directories with a per-user mounted DataVault us
 
 ## Setup
 
-1. Copy `offline_sync.sh` to `/usr/local/bin/` and make it executable:
-
-```bash
-sudo cp offline_sync.sh /usr/local/bin/
-sudo chmod +x /usr/local/bin/offline_sync.sh
+1. Run install.sh
