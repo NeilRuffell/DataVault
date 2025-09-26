@@ -15,27 +15,6 @@ TEMPLATE_DIRS="example_dirs.txt"
 # -----------------------------
 # Helper function
 # -----------------------------
-create_desktop_launcher() {
-    local user_home=$1
-    local desktop_file="$user_home/.local/share/applications/$DESKTOP_FILE_NAME"
-
-    mkdir -p "$user_home/.local/share/applications"
-
-    cat > "$desktop_file" <<EOL
-[Desktop Entry]
-Name=Offline Sync
-Comment=Sync home directories with DataVault
-Exec=/usr/local/bin/$SCRIPT_NAME
-Icon=folder-sync
-Terminal=true
-Type=Application
-Categories=Utility;
-EOL
-
-    chown "$user_home:$user_home" "$desktop_file"
-    chmod 644 "$desktop_file"
-    echo "Desktop launcher created for $user_home at $desktop_file"
-}
 
 # -----------------------------
 # 1. Copy script to /usr/local/bin
@@ -63,8 +42,7 @@ for user_home in /home/*; do
         echo "Config already exists for $(basename $user_home), skipping."
     fi
 
-    # Optional: create KDE launcher
-    create_desktop_launcher "$user_home"
+
 done
 
 echo "Installation complete!"
