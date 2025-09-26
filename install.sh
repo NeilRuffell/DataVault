@@ -1,50 +1,49 @@
 #!/bin/bash
-# -----------------------------
-# Offline Sync Installer
-# -----------------------------
-# Copies offline_sync.sh to /usr/local/bin
-# Creates per-user ~/.offline_sync_dirs if missing
-# Sets permissions
-# Optionally creates a KDE launcher
-# -----------------------------
+# offline_sync_installer.sh
+# Safe system-wide installer for offline_sync.sh
+
+set -e
 
 SCRIPT_NAME="offline_sync.sh"
-DESKTOP_FILE_NAME="offline-sync.desktop"
-TEMPLATE_DIRS="example_dirs.txt"
+EXAMPLE_FILE="example_dirs.txt"
+INSTALL_PATH="/usr/local/bin"
 
-# -----------------------------
-# Helper function
-# -----------------------------
+# Check required files exist
+if [[ ! -f "$SCRIPT_NAME" ]]; then
+    echo "Error: $SCRIPT_NAME not found in current directory."
+    exit 1
+fi
 
-# -----------------------------
-# 1. Copy script to /usr/local/bin
-# -----------------------------
-echo "Installing $SCRIPT_NAME to /usr/local/bin..."
-sudo cp "$SCRIPT_NAME" /usr/local/bin/
-sudo chmod 755 /usr/local/bin/$SCRIPT_NAME
+if [[ ! -f "$EXAMPLE_FILE" ]]; then
+    echo "Error: $EXAMPLE_FILE not found in current directory."
+    exit 1
+fi
+
+echo "Installing $SCRIPT_NAME to $INSTALL_PATH..."
+sudo cp "$SCRIPT_NAME" "$INSTALL_PATH/"
+sudo chmod 755 "$INSTALL_PATH/$SCRIPT_NAME"
 echo "Done."
 
-# -----------------------------
-# 2. Create per-user config
-# -----------------------------
 echo "Setting up per-user configs..."
-for user_home in /home/*; do
-    # skip if not a directory
-    [ ! -d "$user_home" ] && continue
 
-    config_file="$user_home/.offline_sync_dirs"
-    if [ ! -f "$config_file" ]; then
-        cp "$TEMPLATE_DIRS" "$config_file"
-        chown "$(basename $user_home):$(basename $user_home)" "$config_file"
-        chmod 644 "$config_file"
-        echo "Created config for $(basename $user_home) at $config_file"
-    else
-        echo "Config already exists for $(basename $user_home), skipping."
+# Loop over /home/* and only process real users
+for userdir in /home/*; do
+    user=$(basename "$userdir")
+
+    if id "$user" &>/dev/null; then
+        CONFIG_FILE="$userdir/.offline_sync_dirs"
+        if [[ -f "$CONFIG_FILE" ]]; then
+            echo "Config already exists for $user, skipping."
+        else
+            cp "$EXAMPLE_FILE" "$CONFIG_FILE"
+            chown "$user:$user" "$CONFIG_FILE"
+            chmod 600 "$CONFIG_FILE"
+            echo "Created config for $user at $CONFIG_FILE"
+        fi
     fi
-
-
 done
 
+echo ""
 echo "Installation complete!"
-echo "Each user should edit ~/.offline_sync_dirs to list directories they want synced."
-echo "Run /usr/local/bin/$SCRIPT_NAME to perform dry-run sync."
+echo "Each user can edit ~/.offline_sync_dirs to list directories they want synced."
+echo "Run $INSTALL_PATH/$SCRIPT_NAME to perform dry-run sync."
